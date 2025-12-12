@@ -1,4 +1,3 @@
-// Fungsi untuk menampilkan menu mobile
 document.addEventListener('DOMContentLoaded', function() {
   const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
   const mobileNav = document.querySelector('.mobile-nav');
@@ -48,7 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Template untuk kartu berita
   function cardTemplate({ title, link, contentSnippet, image, isoDate, source }) {
     const time = new Date(isoDate).toLocaleString('id-ID');
     return `
@@ -57,18 +55,17 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="card-body">
           <h3 class="card-title">${title}</h3>
           <p class="card-desc">${contentSnippet || ''}</p>
-          <div class="card-footer">${source} · ${time}</div>
+          <div class="card-footer">· ${time}</div>
         </div>
       </a>`;
   }
 
-  // Fungsi untuk mencoba beberapa endpoint API secara berurutan dengan CORS proxy
   async function tryMultipleEndpoints(endpoints) {
     for (const endpoint of endpoints) {
       try {
         const API_URL = window.API_CONFIG ? 
-          window.API_CONFIG.getUrl(endpoint, true) : // Gunakan CORS proxy
-          `https://corsproxy.io/?${encodeURIComponent(`https://berita-indo-api-next.vercel.app/api/${endpoint}`)}`;
+          window.API_CONFIG.getUrl(endpoint, true) : 
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://berita-indo-api-next.vercel.app/api/${endpoint}`)}`;
         
         const res = await fetch(API_URL);
         if (res.ok) {
@@ -80,14 +77,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn(`Error pada endpoint ${endpoint}:`, error.message);
       }
     }
-    return null; // Semua endpoint gagal
+    return null;
   }
 
-  // Fungsi untuk memuat berita
   async function loadNews() {
     const con = document.getElementById('news-container');
     
-    // Tampilkan loading skeleton
     con.innerHTML = `
       <div class="skeleton-card"></div>
       <div class="skeleton-card"></div>
@@ -95,17 +90,14 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     
     try {
-      // Dapatkan daftar endpoint dari konfigurasi atau gunakan default
       const endpoints = window.API_CONFIG ? 
         window.API_CONFIG.ENDPOINTS : 
         ['cnn-news', 'kumparan-news', 'cnbc-news', 'antara-news/terkini'];
       
-      // Coba endpoint secara berurutan
       const data = await tryMultipleEndpoints(endpoints);
       
       if (data) {
-        // Format data mungkin berbeda tergantung API
-        const newsData = data.data || data; // Support both formats
+        const newsData = data.data || data;
         if (Array.isArray(newsData) && newsData.length > 0) {
           con.innerHTML = newsData.map(cardTemplate).join('');
         } else {
@@ -120,6 +112,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Muat berita saat halaman siap
   loadNews();
 });

@@ -1,4 +1,3 @@
-// Fungsi untuk menampilkan menu mobile
 document.addEventListener('DOMContentLoaded', function() {
   const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
   const mobileNav = document.querySelector('.mobile-nav');
@@ -48,10 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-    /* ---------- fungsi bantu ---------- */
   const latestBox = document.getElementById('content-latest');
 
-  // Template untuk kartu berita
   const cardTemplate = ({ title, link, contentSnippet, isoDate, source, image }) => {
     const time = new Date(isoDate).toLocaleString('id-ID');
     return `
@@ -61,22 +58,20 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="card-body">
           <h3 class="card-title">${title}</h3>
           <p class="card-desc">${contentSnippet || ''}</p>
-          <div class="card-footer">${source} · ${time}</div>
+          <div class="card-footer">· ${time}</div>
         </div>
       </a>`;
   };
 
-  // Konfigurasi API - gunakan dari window.API_CONFIG atau default ke API baru
   const BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 
     'https://berita-indo-api-next.vercel.app/api';
     
   const CORS_PROXY = window.API_CONFIG ? window.API_CONFIG.CORS_PROXY :
-    'https://corsproxy.io/?';  
+    'https://api.allorigins.win/raw?url=';  
   
   const LIST = window.API_CONFIG ? window.API_CONFIG.ENDPOINTS : 
     ['cnn-news', 'kumparan-news', 'cnbc-news', 'antara-news/terkini'];
 
-  // Filter berita hari ini
   const today = new Date();
   const start = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
   const end   = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
@@ -86,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return d >= start && d <= end;
   };
 
-  // Fungsi untuk mengambil berita dari API dengan CORS proxy
   const fetchNews = async slug => {
     try {
       const url = `${BASE_URL}/${slug}`;
@@ -95,16 +89,14 @@ document.addEventListener('DOMContentLoaded', function() {
       const res = await fetch(proxyUrl);
       if (!res.ok) throw new Error(res.status);
       const json = await res.json();
-      return (json.data || json).filter(it => isToday(it.isoDate)); // Support both formats
+      return (json.data || json).filter(it => isToday(it.isoDate));
     } catch (e) {
       console.error('Gagal fetch', slug, e);
       return [];
     }
   };
 
-  // Fungsi untuk memuat berita hari ini
   const loadTodayNews = async () => {
-    // Tampilkan loading state
     latestBox.innerHTML = `
       <div class="skeleton-card"></div>
       <div class="skeleton-card"></div>
@@ -126,9 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
 
-  // Muat berita saat halaman siap
   loadTodayNews();
   
-  // Refresh otomatis setiap 5 menit
-  setInterval(loadTodayNews, 5 * 60 * 1000);
+  setInterval(loadTodayNews, 10 * 60 * 1000);
 });
