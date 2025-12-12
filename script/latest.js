@@ -69,6 +69,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Konfigurasi API - gunakan dari window.API_CONFIG atau default ke API baru
   const BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 
     'https://berita-indo-api-next.vercel.app/api';
+    
+  const CORS_PROXY = window.API_CONFIG ? window.API_CONFIG.CORS_PROXY :
+    'https://corsproxy.io/?';  
   
   const LIST = window.API_CONFIG ? window.API_CONFIG.ENDPOINTS : 
     ['cnn-news', 'kumparan-news', 'cnbc-news', 'antara-news/terkini'];
@@ -83,10 +86,13 @@ document.addEventListener('DOMContentLoaded', function() {
     return d >= start && d <= end;
   };
 
-  // Fungsi untuk mengambil berita dari API
+  // Fungsi untuk mengambil berita dari API dengan CORS proxy
   const fetchNews = async slug => {
     try {
-      const res = await fetch(`${BASE_URL}/${slug}`);
+      const url = `${BASE_URL}/${slug}`;
+      const proxyUrl = `${CORS_PROXY}${encodeURIComponent(url)}`;
+      
+      const res = await fetch(proxyUrl);
       if (!res.ok) throw new Error(res.status);
       const json = await res.json();
       return (json.data || json).filter(it => isToday(it.isoDate)); // Support both formats
@@ -98,12 +104,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Fungsi untuk memuat berita hari ini
   const loadTodayNews = async () => {
+    // Tampilkan loading state
+    latestBox.innerHTML = `
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    `;
+    
     const all = await Promise.all(LIST.map(fetchNews));
     const flat = all.flat();
     const top10 = flat
       .sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate))
       .slice(0, 10);
-    latestBox.innerHTML = top10.map(cardTemplate).join('');
+      
+    if (top10.length > 0) {
+      latestBox.innerHTML = top10.map(cardTemplate).join('');
+    } else {
+      latestBox.innerHTML = '<div class="news-error">Tidak ada berita terkini hari ini.</div>';
+    }
   };
 
   // Muat berita saat halaman siap

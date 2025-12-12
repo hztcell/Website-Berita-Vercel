@@ -62,13 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
       </a>`;
   }
 
-  // Fungsi untuk mencoba beberapa endpoint API secara berurutan
+  // Fungsi untuk mencoba beberapa endpoint API secara berurutan dengan CORS proxy
   async function tryMultipleEndpoints(endpoints) {
     for (const endpoint of endpoints) {
       try {
         const API_URL = window.API_CONFIG ? 
-          `${window.API_CONFIG.BASE_URL}/${endpoint}` : 
-          `https://berita-indo-api-next.vercel.app/api/${endpoint}`;
+          window.API_CONFIG.getUrl(endpoint, true) : // Gunakan CORS proxy
+          `https://corsproxy.io/?${encodeURIComponent(`https://berita-indo-api-next.vercel.app/api/${endpoint}`)}`;
         
         const res = await fetch(API_URL);
         if (res.ok) {
@@ -86,6 +86,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Fungsi untuk memuat berita
   async function loadNews() {
     const con = document.getElementById('news-container');
+    
+    // Tampilkan loading skeleton
+    con.innerHTML = `
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    `;
+    
     try {
       // Dapatkan daftar endpoint dari konfigurasi atau gunakan default
       const endpoints = window.API_CONFIG ? 
@@ -98,9 +106,11 @@ document.addEventListener('DOMContentLoaded', function() {
       if (data) {
         // Format data mungkin berbeda tergantung API
         const newsData = data.data || data; // Support both formats
-        con.innerHTML = Array.isArray(newsData) ? 
-          newsData.map(cardTemplate).join('') : 
-          '<div class="news-error">Format data tidak valid.</div>';
+        if (Array.isArray(newsData) && newsData.length > 0) {
+          con.innerHTML = newsData.map(cardTemplate).join('');
+        } else {
+          throw new Error('Data berita kosong');
+        }
       } else {
         throw new Error('Semua endpoint API gagal');
       }

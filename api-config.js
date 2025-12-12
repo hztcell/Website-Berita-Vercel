@@ -2,8 +2,11 @@
 // File ini berisi URL API dan daftar endpoint yang digunakan
 
 const API_CONFIG = {
-  // Base URL untuk API berita baru
+  // Base URL untuk API berita baru dengan CORS proxy
   BASE_URL: "https://berita-indo-api-next.vercel.app/api",
+  
+  // CORS proxy untuk menghindari masalah CORS di browser
+  CORS_PROXY: "https://corsproxy.io/?",
   
   // Daftar endpoint/sumber berita baru
   ENDPOINTS: [
@@ -13,19 +16,29 @@ const API_CONFIG = {
     "antara-news/terkini"
   ],
   
-  // URL lengkap untuk endpoint pertama (digunakan di home.js)
+  // URL lengkap untuk endpoint pertama dengan CORS proxy
   getFirstEndpointUrl: function() {
-    return `${this.BASE_URL}/${this.ENDPOINTS[0]}`;
+    return `${this.CORS_PROXY}${encodeURIComponent(`${this.BASE_URL}/${this.ENDPOINTS[0]}`)}`;
   },
   
-  // URL untuk endpoint tertentu
+  // URL untuk endpoint tertentu dengan CORS proxy
   getEndpointUrl: function(endpointIndex) {
-    return `${this.BASE_URL}/${this.ENDPOINTS[endpointIndex]}`;
+    return `${this.CORS_PROXY}${encodeURIComponent(`${this.BASE_URL}/${this.ENDPOINTS[endpointIndex]}`)}`;
   },
   
-  // Semua URL endpoint
+  // Semua URL endpoint dengan CORS proxy
   getAllEndpointUrls: function() {
-    return this.ENDPOINTS.map(endpoint => `${this.BASE_URL}/${endpoint}`);
+    return this.ENDPOINTS.map(endpoint => 
+      `${this.CORS_PROXY}${encodeURIComponent(`${this.BASE_URL}/${endpoint}`)}`
+    );
+  },
+  
+  // Fungsi untuk mendapatkan URL dengan atau tanpa proxy
+  getUrl: function(endpoint, useProxy = true) {
+    const url = `${this.BASE_URL}/${endpoint}`;
+    return useProxy ? 
+      `${this.CORS_PROXY}${encodeURIComponent(url)}` : 
+      url;
   }
 };
 
