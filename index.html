@@ -3,8 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Berita</title>
+  <meta name="description" content="Portal berita terkini dengan loading cepat dan infinite scroll">
+  <meta name="keywords" content="berita, news, portal, indonesia, terkini">
+  <meta name="author" content="Karteho">
+  <link rel="preload" href="./style/home.css" as="style">
+  <link rel="preload" href="./performance-config.js" as="script">
+  <link rel="preload" href="./api-config.js" as="script">
+  <link rel="preconnect" href="https://api.allorigins.win">
+  <link rel="preconnect" href="https://berita-indo-api-next.vercel.app">
+  <link rel="dns-prefetch" href="https://api.allorigins.win">
+  <link rel="dns-prefetch" href="https://berita-indo-api-next.vercel.app">
+  
+  <title>Portal Berita - Loading Cepat & Infinite Scroll</title>
   <link rel="stylesheet" href="./style/home.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📰</text></svg>">
 </head>
 <body>
   <header>
@@ -43,7 +55,19 @@
   </div>
 </section>
 
-<script src="./api-config.js"></script>
-<script src="./script/home.js"></script>
+<script src="./performance-config.js" defer></script>
+<script src="./api-config.js" defer></script>
+<script src="./script/home.js" defer></script>
+
+<noscript>
+  <style>
+    .skeleton-card, .loading-indicator { display: none !important; }
+    .news-grid { display: block !important; }
+  </style>
+  <div style="text-align: center; padding: 40px;">
+    <h2>JavaScript Diperlukan</h2>
+    <p>Silakan aktifkan JavaScript untuk melihat berita terkini.</p>
+  </div>
+</noscript>
 </body>
 </html>
