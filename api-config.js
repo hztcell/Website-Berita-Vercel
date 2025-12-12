@@ -2,16 +2,15 @@
 // File ini berisi URL API dan daftar endpoint yang digunakan
 
 const API_CONFIG = {
-  // Base URL untuk API berita
-  BASE_URL: "https://berita-indo-api.vercel.app/v1",
+  // Base URL untuk API berita baru
+  BASE_URL: "https://berita-indo-api-next.vercel.app/api",
   
-  // Daftar endpoint/sumber berita
+  // Daftar endpoint/sumber berita baru
   ENDPOINTS: [
-    "cnbc-news",
     "cnn-news",
-    "republika-news",
-    "tempo-news",
-    "antara-news"
+    "kumparan-news",
+    "cnbc-news",
+    "antara-news/terkini"
   ],
   
   // URL lengkap untuk endpoint pertama (digunakan di home.js)

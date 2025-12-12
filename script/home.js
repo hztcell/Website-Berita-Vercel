@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const time = new Date(isoDate).toLocaleString('id-ID');
     return `
       <a class="card" href="${link}" target="_blank" rel="noopener">
-        <img src="${image.large || image || 'https://via.placeholder.com/400x225?text=No+Image'}" alt="${title}" onerror="this.style.display='none'" />
+        <img src="${image?.large || image || 'https://via.placeholder.com/400x225?text=No+Image'}" alt="${title}" onerror="this.style.display='none'" />
         <div class="card-body">
           <h3 class="card-title">${title}</h3>
           <p class="card-desc">${contentSnippet || ''}</p>
@@ -62,18 +62,48 @@ document.addEventListener('DOMContentLoaded', function() {
       </a>`;
   }
 
+  // Fungsi untuk mencoba beberapa endpoint API secara berurutan
+  async function tryMultipleEndpoints(endpoints) {
+    for (const endpoint of endpoints) {
+      try {
+        const API_URL = window.API_CONFIG ? 
+          `${window.API_CONFIG.BASE_URL}/${endpoint}` : 
+          `https://berita-indo-api-next.vercel.app/api/${endpoint}`;
+        
+        const res = await fetch(API_URL);
+        if (res.ok) {
+          const data = await res.json();
+          return data;
+        }
+        console.warn(`Endpoint ${endpoint} gagal dengan status: ${res.status}`);
+      } catch (error) {
+        console.warn(`Error pada endpoint ${endpoint}:`, error.message);
+      }
+    }
+    return null; // Semua endpoint gagal
+  }
+
   // Fungsi untuk memuat berita
   async function loadNews() {
     const con = document.getElementById('news-container');
     try {
-      // Gunakan API endpoint pertama dari konfigurasi
-      const API_URL = window.API_CONFIG ? window.API_CONFIG.getFirstEndpointUrl() : 
-        'https://berita-indo-api.vercel.app/v1/cnbc-news';
+      // Dapatkan daftar endpoint dari konfigurasi atau gunakan default
+      const endpoints = window.API_CONFIG ? 
+        window.API_CONFIG.ENDPOINTS : 
+        ['cnn-news', 'kumparan-news', 'cnbc-news', 'antara-news/terkini'];
       
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error(res.status);
-      const data = await res.json();
-      con.innerHTML = data.map(cardTemplate).join('');
+      // Coba endpoint secara berurutan
+      const data = await tryMultipleEndpoints(endpoints);
+      
+      if (data) {
+        // Format data mungkin berbeda tergantung API
+        const newsData = data.data || data; // Support both formats
+        con.innerHTML = Array.isArray(newsData) ? 
+          newsData.map(cardTemplate).join('') : 
+          '<div class="news-error">Format data tidak valid.</div>';
+      } else {
+        throw new Error('Semua endpoint API gagal');
+      }
     } catch (e) {
       console.error('Gagal memuat berita:', e);
       con.innerHTML = '<div class="news-error">Gagal memuat berita. Silakan coba lagi nanti.</div>';

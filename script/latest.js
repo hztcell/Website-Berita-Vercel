@@ -66,12 +66,12 @@ document.addEventListener('DOMContentLoaded', function() {
       </a>`;
   };
 
-  // Konfigurasi API - gunakan dari window.API_CONFIG atau default
+  // Konfigurasi API - gunakan dari window.API_CONFIG atau default ke API baru
   const BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 
-    'https://berita-indo-api.vercel.app/v1';
+    'https://berita-indo-api-next.vercel.app/api';
   
   const LIST = window.API_CONFIG ? window.API_CONFIG.ENDPOINTS : 
-    ['cnbc-news', 'cnn-news', 'republika-news', 'tempo-news', 'antara-news'];
+    ['cnn-news', 'kumparan-news', 'cnbc-news', 'antara-news/terkini'];
 
   // Filter berita hari ini
   const today = new Date();
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const res = await fetch(`${BASE_URL}/${slug}`);
       if (!res.ok) throw new Error(res.status);
       const json = await res.json();
-      return (json.data || []).filter(it => isToday(it.isoDate));
+      return (json.data || json).filter(it => isToday(it.isoDate)); // Support both formats
     } catch (e) {
       console.error('Gagal fetch', slug, e);
       return [];
